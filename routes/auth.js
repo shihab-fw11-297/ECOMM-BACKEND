@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/User");
+const CryptoJS = require("crypto-js");
+const jwt = require("jsonwebtoken");
 
 //REGISTER with encypt hash password
 router.post("/register", async (req, res) => {
@@ -22,48 +24,44 @@ router.post("/register", async (req, res) => {
 
 //LOGIN
 
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   //find by user id
-  try{
-      const user = await User.findOne(
-          {
-              userName: req.body.user_name
-          }
-      );
+  try {
+    const user = await User.findOne({ username: req.body.username });
+    !user && res.status(401).json("Wrong credentials!");
 
-      !user && res.status(401).json("Wrong User Name");
-
-      //get data from database and decrpt database password
-      const hashedPassword = CryptoJS.AES.decrypt(
-        user.password,
-        process.env.PASS_SEC
-    );
-
-    //convert into string (using charecter we can define utf8)
-    const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
-
-    const inputPassword = req.body.password;
     
-    originalPassword != inputPassword && 
-    res.status(401).json("Wrong Password");
+      //get data from database and decrpt database password
 
-    //verify by token
+    const hashedPassword = CryptoJS.AES.decrypt(
+      user.password,
+      process.env.PASS_SEC
+    );
+    
+        //convert into string (using charecter we can define utf8)
+    const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+
+    OriginalPassword !== req.body.password &&
+      res.status(401).json("Wrong credentials!");
+
+          //verify by token
     const accessToken = jwt.sign(
       {
-          id: user._id,
-          isAdmin: user.isAdmin,
+        id: user._id,
+        isAdmin: user.isAdmin,
       },
-      process.env.JWT,
-          {expiresIn:"3d"}  //we cannot use this token after 3 days
-      );
+      process.env.JWT_SEC,
+      {expiresIn:"3d"}  //we cannot use this token after 3 days
+    );
 
-    //mogo store data in _doc
-    const { password, ...others } = user._doc;  
-        res.status(200).json({...others, accessToken});
+    
+    //mogodb store data in _doc
+    const { password, ...others } = user._doc;
 
-    }catch(err){
-        res.status(500).json(err);
-    }
-
+    res.status(200).json({...others, accessToken});
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
+
 module.exports = router;
