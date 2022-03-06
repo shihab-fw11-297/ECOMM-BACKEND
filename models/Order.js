@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
+const uuid = require('uuid');
 
 const OrderSchema = new mongoose.Schema(
   {
+    orderID:{ type:String, default: uuid.v1 },
     userId: { type: String, required: true },
     products: [
       {
@@ -12,6 +14,9 @@ const OrderSchema = new mongoose.Schema(
           type: Number,
           default: 1,
         },
+        name:{ type: String},
+        img: { type: String},
+        price: { type: Number},
       },
     ],
     amount: { type: Number, required: true },

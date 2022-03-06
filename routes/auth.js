@@ -7,12 +7,19 @@ const jwt = require("jsonwebtoken");
 //REGISTER with encypt hash password
 router.post("/register", async (req, res) => {
   const newUser = new User({
+    fname:req.body.fname,
+    lname:req.body.lname,
     username: req.body.username,
     email: req.body.email,
     password: CryptoJS.AES.encrypt(
       req.body.password,
       process.env.PASS_SEC
     ).toString(),
+    cpassword:CryptoJS.AES.encrypt(
+      req.body.password,
+      process.env.PASS_SEC
+    ).toString(),
+    address:req.body.address
   });
 
   try {
