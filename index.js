@@ -15,8 +15,8 @@ dotenv.config();
 mongoose
   .connect(process.env.mongo)
   .then(() => console.log("DB Connection Successfull!"))
-  .catch((err) => {
-    console.log(err);
+  .catch((errors) => {
+    console.log(errors);
   });
 
 app.use(cors());
