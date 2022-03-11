@@ -21,6 +21,25 @@ router.post("/", async (req, res) => {
 });
 
 //UPDATE
+router.put("/cancel/:id", async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: "cancelled",
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedOrder);
+
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+
+
+//UPDATE
 router.put("/:id", async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
@@ -71,7 +90,6 @@ router.get("/singleOrders/:id", async (req, res) => {
   
   try {
     const orders = await Order.find({ orderID: req.params.id });
-    console.log(orders[0]);
     res.status(200).json(orders);
   } catch (err) {
     res.status(500).json(err);
